@@ -28,6 +28,12 @@ try {
 app.use("/user", userRoute);
 app.use("/campaign", campaignRoute);
 
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+
 app.get("/", (req, res) => {
   res.send("It's Working!");
 });
