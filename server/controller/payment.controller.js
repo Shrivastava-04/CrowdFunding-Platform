@@ -68,7 +68,7 @@ export const paymentVerification = async(req,res)=>{
                 });
 
                     const donatedAmount = razorpayOrder.amount/100;
-                    const response = await fetch(`http://localhost:4001/user/getuserbyid?_id=${encodeURIComponent(currCampaign.creatorId)}`, {
+                    const response = await fetch(`https://crowdfunding-platform-backend.onrender.com/user/getuserbyid?_id=${encodeURIComponent(currCampaign.creatorId)}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json"
@@ -80,7 +80,7 @@ export const paymentVerification = async(req,res)=>{
                         fundRaised: data.user[0].fundRaised + donatedAmount,
                     }
 
-                const resUserCreator = await fetch(`http://localhost:4001/user/updateuser/${currCampaign.creatorId}`,{
+                const resUserCreator = await fetch(`https://crowdfunding-platform-backend.onrender.com/user/updateuser/${currCampaign.creatorId}`,{
                     method: "PUT",
                     headers: {
                             "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export const paymentVerification = async(req,res)=>{
 
                 const updatedUserBacker = updateUserBacker(user,currCampaign);
 
-                const resUserBacker = await fetch(`http://localhost:4001/user/updateuser/${user._id}`,{
+                const resUserBacker = await fetch(`https://crowdfunding-platform-backend.onrender.com/user/updateuser/${user._id}`,{
                     method: "PUT",
                     headers: {
                             "Content-Type": "application/json",
@@ -128,7 +128,7 @@ export const paymentVerification = async(req,res)=>{
                     amountRaised: currCampaign.amountRaised + (razorpayOrder.amount/100),
                 }
 
-                const resCampaign = await fetch(`http://localhost:4001/campaign/campaignupdate/${currCampaign._id}`,{
+                const resCampaign = await fetch(`https://crowdfunding-platform-backend.onrender.com/campaign/campaignupdate/${currCampaign._id}`,{
                     method: "PUT",
                     headers: {
                             "Content-Type": "application/json",

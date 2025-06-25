@@ -148,7 +148,7 @@ export const deleteCampaign = async(req,res)=>{
       );
 
       try {
-        const res = await fetch(`http://localhost:4001/user/updateuser/${creator._id}`, {
+        const res = await fetch(`https://crowdfunding-platform-backend.onrender.com/user/updateuser/${creator._id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -168,7 +168,7 @@ export const deleteCampaign = async(req,res)=>{
         String(campaignss.campaignId) !== String(deletedCampaign._id)
       });
       try {
-        const res = await fetch(`http://localhost:4001/user/updateuser/${backer._id}`,{
+        const res = await fetch(`https://crowdfunding-platform-backend.onrender.com/user/updateuser/${backer._id}`,{
           method: "PUT",
           headers:{
             "content-Type": "application/json",
