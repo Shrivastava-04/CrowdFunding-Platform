@@ -7,11 +7,12 @@ import Cards from './Cards';
 
 const Campaigns = () => {
     const [campaigns, setCampaigns] = useState([]);
+    const Base_Url = import.meta.env.VITE_BASE_URL;
     
     useEffect(()=>{
         const getCampaigns = async ()=>{
             try {
-                const res = await axios.get("http://localhost:4001/campaign/campaigns");
+                const res = await axios.get(`${Base_Url}/campaign/campaigns`);
                 const camps = res.data.slice(0,6)
                 setCampaigns(camps);
             } catch (error) {

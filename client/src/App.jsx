@@ -7,6 +7,9 @@ import Contact from "./pages/Contact.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Campaign from "./pages/Campaign.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Settings from "./pages/Settings.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 const App = () => {
   return (
     <>
@@ -19,6 +22,9 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/campaign" element={<Campaign/>} />
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/settings" element={<Settings/>} />
+          <Route path="/paymentsuccess" element={<PaymentSuccess/>}/>
         </Routes>
       </div>
     </>

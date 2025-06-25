@@ -1,20 +1,30 @@
 import React from "react";
-import image from "../assets/Screenshot 2025-05-31 224402.png";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import {Link} from "react-router-dom"
 import "react-circular-progressbar/dist/styles.css";
+import { useState } from "react";
+import { useEffect } from "react";
+import axios from "axios"
 
 const Cards = (data) => {
     const item = data.item;
-  const percentage = (item.amountRaised*100)/(item.goal);
-//   console.log(item.item)
-// console.log(item._id)
+    const Base_Url = import.meta.env.VITE_BASE_URL;
+    const [user, setUser] = useState();
+    const percentage = (item.amountRaised*100)/(item.goal);
+    useEffect(()=>{
+        const getUser = async()=>{
+            const res = await axios.get(`${Base_Url}/user/getuserbyid`,{params:{_id:item.creatorId}})
+            setUser(res.data.user[0]);
+        }
+        getUser();
+    },[])
+  
 
   return (
     <Link to={`/campaign?id=${item._id}`} className="mt-4 my-3 p-3 cursor-pointer">
         <div className="bg-base-100 w-92 shadow-xl hover:scale-105 duration-200 ">
             <figure>
-                <img src={image} alt="Shoes" />
+                <img src={item.images[0]} className="w-96 object-cover h-80" alt="Shoes" />
             </figure>
             <div className="flex flex-col items-center justify-center">
                 <h2 className=" text-2xl ">
@@ -43,7 +53,7 @@ const Cards = (data) => {
                     </div>
                     <div className=" p-3 border-l-2 border-l-gray-300 flex flex-col items-center justify-start">
                         <span className="flex flex-col justify-center item-center text-xs text-gray-500">Created By</span>
-                        <span>Harshit</span>
+                        <span>{user&&user.name}</span>
                     </div>
                 </div>
             </div>

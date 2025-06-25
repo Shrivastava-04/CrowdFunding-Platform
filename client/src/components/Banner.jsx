@@ -2,7 +2,7 @@ import React from "react";
 
 const Banner = () => {
   return (
-    <div className="flex justify-between mx-5 pt-20">
+    <div className="flex justify-between mx-5 ">
       <div className="flex flex-col items-center gap-10">
         <h1 className="text-8xl mt-20">Empower Ideas. Fuel Dreams.</h1>
         <a

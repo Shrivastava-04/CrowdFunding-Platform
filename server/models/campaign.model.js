@@ -44,6 +44,7 @@ const campaignSchema = mongoose.Schema({
   amountRaised: {
     type: Number,
     require: true,
+    default: 0,
   },
   deadline: {
     type: Date,
@@ -53,6 +54,10 @@ const campaignSchema = mongoose.Schema({
     type: String,
     require: true,
   },
+  images: {
+    type: [String],
+    default: []
+  }
 });
 
 const campaign = mongoose.model("Campaign", campaignSchema);

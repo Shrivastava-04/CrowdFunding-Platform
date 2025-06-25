@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
-import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Footer from "../components/Footer"
+import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const Base_Url = import.meta.env.VITE_BASE_URL;
 
   const {
     register,
@@ -15,71 +19,82 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    console.log(data);
     const userInfo = {
       email: data.email,
       password: data.password,
     };
     await axios
-      .post("http://localhost:4001/user/login", userInfo)
+      .post(`${Base_Url}/user/login`, userInfo)
       .then((res) => {
-        console.log(res.data);
-        navigate("/", { required: true });
+        localStorage.setItem("user_id",JSON.stringify(res.data.user_id));
+        // alert(res.data.message);
+        toast.success(res.data.message);
+        setTimeout(() => {
+          navigate("/", { required: true });
+        }, 2000);
+      }).catch((err)=>{
+        toast.error(err.response.data.message);
       });
   };
 
   return (
     <div className="flex flex-col items-center justify-center">
       <Navbar />
-      <div class="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-        <div class="relative py-3 sm:max-w-xl sm:mx-auto">
-          <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-sky-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-          <div class="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-            <div class="max-w-md mx-auto">
+      <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
+        <div className="relative py-3 sm:max-w-xl sm:mx-auto">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-sky-500 shadow-lg transhtmlForm -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
+          <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
+            <div className="max-w-md mx-auto">
               <div>
-                <h1 class="text-2xl font-semibold">Login</h1>
+                <h1 className="text-2xl font-semibold">Login</h1>
               </div>
-              <div class="divide-y divide-gray-200">
+              <div className="divide-y divide-gray-200">
                 <form
                   onSubmit={handleSubmit(onSubmit)}
-                  class="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7"
+                  className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7"
                 >
-                  <div class="relative">
+                  <div className="relative">
                     <input
-                      autocomplete="off"
+                      autoComplete="off"
                       id="email"
                       name="email"
                       type="text"
-                      class="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                      className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
                       placeholder="Email address"
                       {...register("email", { required: true })}
                     />
                     <label
-                      for="email"
-                      class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                      htmlFor="email"
+                      className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
                     >
                       Email Address
                     </label>
                   </div>
-                  <div class="relative">
+                  <div className="relative">
                     <input
-                      autocomplete="off"
+                      autoComplete="off"
                       id="password"
                       name="password"
-                      type="password"
-                      class="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                      type={showPassword ? "text" : "password"}
+                      className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
                       placeholder="Password"
                       {...register("password", { required: true })}
                     />
                     <label
-                      for="password"
-                      class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
+                      htmlFor="password"
+                      className="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
                     >
                       Password
                     </label>
+                    <div
+                      className="absolute right-2 top-2 cursor-pointer text-gray-600"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </div>
                   </div>
-                  {/* <div class="relative"> */}
-                  <button class="bg-cyan-500 text-white rounded-md px-2 py-1">
+                  {/* <div className="relative"> */}
+                  <button className="bg-cyan-500 text-white rounded-md px-2 py-1">
                     Submit
                   </button>
                   {/* </div> */}
@@ -95,10 +110,10 @@ const Login = () => {
                 Sign Up
               </a>
             </div>
-            {/* <div class="w-full flex justify-center">
-              <button class="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            {/* <div className="w-full flex justify-center">
+              <button className="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 <svg
-                  class="h-6 w-6 mr-2"
+                  className="h-6 w-6 mr-2"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
                   width="800px"
@@ -119,12 +134,12 @@ const Login = () => {
                     {" "}
                     <g
                       id="Color-"
-                      transform="translate(-401.000000, -860.000000)"
+                      transhtmlForm="translate(-401.000000, -860.000000)"
                     >
                       {" "}
                       <g
                         id="Google"
-                        transform="translate(401.000000, 860.000000)"
+                        transhtmlForm="translate(401.000000, 860.000000)"
                       >
                         {" "}
                         <path

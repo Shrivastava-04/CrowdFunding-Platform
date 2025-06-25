@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 
 const home = () => {
   return (
+    //welcome to home page
     <div className="min-h-full min-w-full flex flex-col items-center">
       <Navbar />
       <Banner />
