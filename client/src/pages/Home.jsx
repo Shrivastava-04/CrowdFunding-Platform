@@ -4,16 +4,15 @@ import Banner from "../components/Banner";
 import Campaigns from "../components/Campaigns";
 import Footer from "../components/Footer";
 
-const home = () => {
+const Home = () => {
   return (
-    //welcome to home page
-    <div className="min-h-full min-w-full flex flex-col items-center">
+    <div className="w-full min-h-screen flex flex-col">
       <Navbar />
       <Banner />
-      <Campaigns/>
-      <Footer/>
+      <Campaigns />
+      <Footer />
     </div>
   );
 };
 
-export default home;
+export default Home;

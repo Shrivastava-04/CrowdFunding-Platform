@@ -8,12 +8,10 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const [userState, setUserState] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const Base_Url = import.meta.env.VITE_BASE_URL;
-
-  const dropdownRef = useRef(null);
-
-  // Fetch user on load
+  // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -34,13 +32,10 @@ const Navbar = () => {
     fetchUser();
   }, [user_id]);
 
-  // Close dropdown if clicked outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
@@ -49,135 +44,95 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-white border-gray-200 w-full dark:bg-gray-700">
-      <Toaster />
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a
-          href="/"
-          className="flex items-center space-x-3 rtl:space-x-reverse"
-        >
-          <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+    <>
+      {/* Top Navbar */}
+      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 w-full z-50 shadow-sm">
+        <Toaster />
+        <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 md:px-6 py-3">
+          {/* Logo */}
+          <a href="/" className="text-2xl font-bold text-gray-800 dark:text-white">
             CrowdFund
-          </span>
-        </a>
+          </a>
 
-        {/* Right side (user/profile or signup) */}
-        <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse relative">
-          {userState ? (
-            <div ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                type="button"
-                className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-              >
-                <span className="sr-only">Open user menu</span>
-                <img
-                  src={user?.image}
-                  alt="Profile"
-                  className="rounded-full w-8 h-8 object-cover"
-                />
-              </button>
-              <div
-                className={`absolute right-0 z-50 mt-2 w-48 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 transition duration-200 ${
-                  dropdownOpen ? "opacity-100 visible" : "opacity-0 invisible"
-                }`}
-              >
-                <div className="px-4 py-3">
-                  <span className="block text-sm text-gray-700 dark:text-white">
-                    {user?.name || "xxxx"}
-                  </span>
-                  <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
-                    {user?.email || "xxxx"}
-                  </span>
-                </div>
-                <ul className="py-2" aria-labelledby="user-menu-button">
-                  <li>
-                    <a
-                      href="/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                    >
-                      Dashboard
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                    >
-                      Settings
-                    </a>
-                  </li>
-                  <li>
-                    <div
-                      onClick={() => {
-                        localStorage.removeItem("user_id");
-                        toast.success("Sign Out Successful");
-                        setTimeout(() => {
-                          navigate("/", { replace: true });
-                        }, 2000);
-                      }}
-                      className="cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                    >
-                      Sign Out
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center space-x-8 text-gray-700 dark:text-white">
+            <a href="/" className="hover:text-blue-600 transition">Home</a>
+            <a href="/donate" className="hover:text-blue-600 transition">Donate</a>
+            <a href="/lend" className="hover:text-blue-600 transition">Lend</a>
+            <a href="/contact" className="hover:text-blue-600 transition">Contact</a>
+          </div>
+
+          {/* Theme Toggle & Profile */}
+          <div className="flex items-center gap-3">
+            {/* User Dropdown */}
+            <div className="relative">
+              {userState ? (
+                <div ref={dropdownRef}>
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="flex items-center cursor-pointer bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  >
+                    <img
+                      src={user?.image}
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  </button>
+
+                  {/* Dropdown */}
+                  <div
+                    className={`absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg dark:bg-gray-700 transition-all duration-200 ${
+                      dropdownOpen ? "block" : "hidden"
+                    }`}
+                  >
+                    <div className="px-4 py-3 text-sm">
+                      <p className="text-gray-900 dark:text-white">{user?.name}</p>
+                      <p className="text-gray-500 truncate dark:text-gray-300">{user?.email}</p>
                     </div>
-                  </li>
-                </ul>
-              </div>
+                    <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
+                      <li>
+                        <a href="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Dashboard</a>
+                      </li>
+                      <li>
+                        <a href="/settings" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">Settings</a>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            localStorage.removeItem("user_id");
+                            toast.success("Sign Out Successful");
+                            setTimeout(() => navigate("/", { replace: true }), 2000);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+                        >
+                          Sign Out
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <a href="/signup">
+                  <button className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm transition">
+                    Sign Up
+                  </button>
+                </a>
+              )}
             </div>
-          ) : (
-            <a href="/signup">
-              <button
-                type="button"
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer hover:scale-110 hover:-translate-y-0.5 ease-in-out"
-              >
-                Sign Up
-              </button>
-            </a>
-          )}
+          </div>
         </div>
+      </nav>
 
-        {/* Left-side nav */}
-        <div
-          className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-          id="navbar-user"
-        >
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-700 dark:border-gray-700">
-            <li>
-              <a
-                href="/"
-                className="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a
-                href="/donate"
-                className="block py-2 px-3 text-gray-700 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
-              >
-                Donate
-              </a>
-            </li>
-            <li>
-              <a
-                href="/lend"
-                className="block py-2 px-3 text-gray-700 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
-              >
-                Lend
-              </a>
-            </li>
-            <li>
-              <a
-                href="/contact"
-                className="block py-2 px-3 text-gray-700 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
-              >
-                Contact
-              </a>
-            </li>
-          </ul>
+      {/* Mobile Bottom Nav */}
+      <div className="md:hidden w-full bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="max-w-screen-xl mx-auto flex justify-center items-center gap-6 px-4 py-2">
+          <a href="/" className="text-gray-700 dark:text-white hover:text-blue-600 transition">Home</a>
+          <a href="/donate" className="text-gray-700 dark:text-white hover:text-blue-600 transition">Donate</a>
+          <a href="/lend" className="text-gray-700 dark:text-white hover:text-blue-600 transition">Lend</a>
+          <a href="/contact" className="text-gray-700 dark:text-white hover:text-blue-600 transition">Contact</a>
         </div>
       </div>
-    </nav>
+    </>
   );
 };
 

@@ -1,308 +1,227 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { TbXboxX } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
 
-
-const LendPageCard = ({user}) => {
+const LendPageCard = ({ user }) => {
   const navigate = useNavigate();
   const Base_Url = import.meta.env.VITE_BASE_URL;
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: {errors},
-    } = useForm();
-    
-    const onSubmit = async(data)=>{
-        const campaignData = {
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            goal: data.goal,
-            images: data.images,
-            deadline: data.deadline,
-            creatorId: user._id
-        }
-        await axios.post(`${Base_Url}/campaign/campaignadd`,campaignData).then((res)=>{
-            console.log(res)
-            toast.success(res.data.message);
-            setTimeout(() => {
-              navigate(`/campaign?id=${res.data.campaignId}`);
-            }, (2000));
-        }).catch((err)=>{
-          toast.error(err.response.data.message);
-        })
-    }
-    const options = [
-      "Medical",
-      "Memorials",
-      "Non-Profit",
-      "Education",
-      "Emergencies",
-      "Children",
-      "Animal",
-      "Sports",
-      "Community",
-      "Elderly",
-      "Art & Media",
-      "Women",
-      "Technology",
-      "Environment",
-      "Social Entrepreneurship",
-      "Human Rights",
-      "Rural Development",
-      "Livelihood",
-      "Loans",
-      "Construction",
-      "Others",
-    ];
+
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+  const [images, setImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const [query, setQuery] = useState("");
-  const [filtered, setFiltered] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [minDate, setMinDate] = useState("");
 
-  const handleChange = (e) => {
-    const input = e.target.value;
-    setQuery(input);
-    setValue("category",input)
-
-    if (input.trim() === "") {
-      setShowDropdown(false);
-      setFiltered([]);
-    } else {
-      const matches = options.filter((item) =>
-        item.toLowerCase().includes(input.toLowerCase())
-      );
-      setFiltered(matches);
-      setShowDropdown(true);
-    }
-  };
-
-  const handleSelect = (value) => {
-    setQuery(value);
-    setValue("category", value);
-    setShowDropdown(false);
-  };
-
-  const [minDate,setMinDate] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  useEffect(()=>{
+  useEffect(() => {
     const today = new Date();
-    today.setDate(today.getDate()+10);
+    today.setDate(today.getDate() + 10);
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
-
     setMinDate(`${yyyy}-${mm}-${dd}`);
-  },[])
-  const handleChangeDate = (e) => {
-    const value = e.target.value;
-    if (value < minDate) {
-      alert("Please select a date 10 days from today or later.");
-      setSelectedDate(""); // Reset if invalid
-    } else {
-      setSelectedDate(value);
+  }, []);
+
+  const onSubmit = async (data) => {
+    const campaignData = {
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      goal: data.goal,
+      images: data.images,
+      deadline: data.deadline,
+      creatorId: user._id
+    };
+    try {
+      const res = await axios.post(`${Base_Url}/campaign/campaignadd`, campaignData);
+      toast.success(res.data.message);
+      setTimeout(() => {
+        navigate(`/campaign?id=${res.data.campaignId}`);
+      }, 2000);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   };
-
-  const [images, setImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
 
   const handleUpload = async (files) => {
     setUploading(true);
     const urls = [];
-
     for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("upload_preset", "Crowd_fund_user_images"); 
-      formData.append("cloud_name", "dgs40un2h"); 
-
+      formData.append("upload_preset", "Crowd_fund_user_images");
+      formData.append("cloud_name", "dgs40un2h");
       try {
-        const res = await axios.post(
-          "https://api.cloudinary.com/v1_1/dgs40un2h/image/upload", 
-          formData
-        );
+        const res = await axios.post("https://api.cloudinary.com/v1_1/dgs40un2h/image/upload", formData);
         urls.push(res.data.url);
-      } catch (err) {
-        // console.error("Upload failed:", err);
+      } catch {
         toast.error("Upload Failed");
       }
     }
-
     setImages(urls);
-    // console.log(urls)
     setUploading(false);
-};
+  };
 
-useEffect(() => {
-        setValue("images", images);
-}, [images, setValue]);
+  useEffect(() => {
+    setValue("images", images);
+  }, [images, setValue]);
+
+  const handleDelete = (indexToRemove) => {
+    setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     handleUpload(files);
   };
 
-    const handleDelete = (indexToRemove) => {
-    setImages((prevImages) =>
-        prevImages.filter((_, index) => index !== indexToRemove)
-    );
-    };
-
+  const options = [
+    "Medical", "Memorials", "Non-Profit", "Education", "Emergencies",
+    "Children", "Animal", "Sports", "Community", "Elderly",
+    "Art & Media", "Women", "Technology", "Environment",
+    "Social Entrepreneurship", "Human Rights", "Rural Development",
+    "Livelihood", "Loans", "Construction", "Others"
+  ];
 
   return (
-    <div className='rounded-xl shadow-md bg-gray-300 w-4/5 p-2 h-fit flex flex-col items-center gap-10 justify-evenly hover:shadow-lg transition-all duration-200'>
-        <div className='flex items-center justify-center py-3 bg-gray-400 rounded-xl shadow-md px-2'>
-            <h1 className='text-2xl'>Please Enter the details about your Campaign</h1>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)} className='w-full flex flex-col gap-10'>
-            <div className='flex justify-evenly items-center text-xl'>
-                <h2>Please Enter the title of the Campaign</h2>
-                <div className='relative'>
-                    <input
-                      autoComplete="off"
-                      id="title"
-                      name="title"
-                      type="text"
-                      className="peer placeholder-transparent h-16 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
-                      placeholder="Name"
-                      {...register("title",{required:true})}
-                    />
-                    <label
-                      htmlFor="title"
-                      className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
-                    >
-                      Title
-                    </label>
-                </div>
-            </div>
-            <div className='flex justify-evenly items-center text-xl'>
-                <h2>Please Enter about the Campaign</h2>
-                <div className='relative'>
-                    <textarea
-                      autoComplete="off"
-                      id="description"
-                      name="description"
-                      type="text"
-                      className="peer placeholder-transparent h-16 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
-                      placeholder="description"
-                      {...register("description",{required:true})}
-                    />
-                    <label
-                      htmlFor="description"
-                      className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
-                    >
-                      About
-                    </label>
-                </div>
-            </div>
-            <div className='flex justify-evenly items-center text-xl'>
-                <div className='flex flex-col gap-5 items-center justify-evenly'>
-                    <h2>Please select the category of the Campaign</h2>
-                    <div className="relative  mx-auto">
-                        <input
-                            id='category'
-                            name='category'
-                            type="text"
-                            value={query}
-                            onChange={handleChange}
-                            onFocus={() => query && setShowDropdown(true)}
-                            className="peer placeholder-transparent h-16 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
-                            placeholder="Search..."
-                        />
-                        {showDropdown && filtered.length > 0 && (
-                            <ul className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                            {filtered.map((item, idx) => (
-                                <li
-                                key={idx}
-                                onClick={() => handleSelect(item)}
-                                className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
-                                >
-                                {item}
-                                </li>
-                            ))}
-                            </ul>
-                        )}
-                        <label htmlFor="category"  className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">
-                            Category
-                        </label>
-                    </div>
-                </div>
-                <div className='flex flex-col gap-5 items-center justify-evenly'>
-                    <h2>Please Enter the total amount you want to be raised</h2>
-                    <div className='relative'>
-                        <input type="text" id='goal' name='goal' placeholder='goal' className='peer placeholder-transparent h-16 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600' 
-                        {...register("goal",{require:true})}
-                        />
-                        <label
-                        htmlFor="goal"
-                        className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm"
-                        >
-                        Goal
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div className='flex items-center justify-evenly text-xl'>
-                <div className='flex flex-col gap-5 items-center justify-evenly'>
-                    <h2>Please Enter the deadline for the Campaign</h2>
-                    <div className='relative'>
-                        <input type="date" id='date' name='date' className='peer placeholder-transparent h-16 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600' 
-                        {...register("deadline",{required:true})}
-                        />
-                        <label className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm" htmlFor="date">Select Date</label>
-                    </div>
-                </div>
-                <div className='flex flex-col gap-5 items-center justify-evenly'>
-                    <h2>Please Upload Some photos of the Campaign</h2>
-                    <div className='relative'>
-                        <input
-                            id='images'
-                            name='images'
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleFileChange}
-                            className="peer placeholder-transparent text-center py-2 text-md font-bold h-16 w-full text-lg border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
-                        />
-                        <label className="absolute -left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm" htmlFor="images">
-                            Select the images
-                        </label>
-                        {uploading && <p>Uploading...</p>}
-                        <div className="flex justify-evenly items-center flex-wrap">
-                            {images.map((url, index) => (
-                                <div
-                                    key={index}
-                                    className={`relative h-8 w-8 rounded-md`}
-                                    style={{
-                                        backgroundImage:`url(${url})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }}
-                                >
-                                    <button
-                                    onClick={() => handleDelete(index)}
-                                    className="absolute right-0 text-white bg-black/50 p-1 rounded-full hover:bg-black"
-                                    >
-                                    <TbXboxX size={8} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className='flex items-center justify-center py-2 px-3 text-xl'>
-                <button className="cursor-pointer text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg px-5 py-2.5 text-center me-2 mb-2">
-                    Submit
-                </button>
-            </div>
-        </form>
-    </div>
-  )
-}
+    <div className="w-full px-4 md:px-0 flex justify-center">
+      <div className="w-full max-w-4xl bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 space-y-8">
+        <h1 className="text-2xl font-semibold text-center">Create Your Campaign</h1>
 
-export default LendPageCard
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Title */}
+          <div>
+            <label className="block font-semibold mb-1">Title</label>
+            <input
+              {...register("title", { required: "Title is required" })}
+              type="text"
+              placeholder="Campaign Title"
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"
+            />
+            {errors.title && <p className="text-red-600 text-sm">{errors.title.message}</p>}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block font-semibold mb-1">Description</label>
+            <textarea
+              {...register("description", { required: "Description is required" })}
+              placeholder="Write about your campaign..."
+              rows={4}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"
+            />
+            {errors.description && <p className="text-red-600 text-sm">{errors.description.message}</p>}
+          </div>
+
+          {/* Category with dropdown */}
+          <div className="relative">
+            <label className="block font-semibold mb-1">Category</label>
+            <div className="relative">
+              <input
+                type="text"
+                readOnly
+                value={query}
+                {...register("category", { required: "Category is required" })}
+                className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 cursor-pointer bg-white dark:bg-gray-800 focus:outline-none focus:ring focus:border-blue-400"
+                placeholder="Select category"
+                onClick={() => setShowDropdown((prev) => !prev)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowDropdown((prev) => !prev)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600"
+              >
+                ▼
+              </button>
+            </div>
+            {showDropdown && (
+              <ul className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-300 rounded-md shadow max-h-48 overflow-auto">
+                {options.map((item, idx) => (
+                  <li
+                    key={idx}
+                    onClick={() => {
+                      setQuery(item);
+                      setValue("category", item);
+                      setShowDropdown(false);
+                    }}
+                    className="px-4 py-2 hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {errors.category && <p className="text-red-600 text-sm mt-1">{errors.category.message}</p>}
+          </div>
+
+          {/* Goal */}
+          <div>
+            <label className="block font-semibold mb-1">Goal Amount</label>
+            <input
+              type="number"
+              placeholder="Enter goal amount"
+              {...register("goal", { required: "Goal amount is required" })}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"
+            />
+            {errors.goal && <p className="text-red-600 text-sm">{errors.goal.message}</p>}
+          </div>
+
+          {/* Deadline */}
+          <div>
+            <label className="block font-semibold mb-1">Deadline</label>
+            <input
+              type="date"
+              min={minDate}
+              {...register("deadline", { required: "Deadline is required" })}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"
+            />
+            {errors.deadline && <p className="text-red-600 text-sm">{errors.deadline.message}</p>}
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <label className="block font-semibold mb-1">Upload Images</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+            {uploading && <p className="text-sm text-gray-600 mt-2">Uploading...</p>}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {images.map((url, index) => (
+                <div key={index} className="relative w-20 h-20 rounded overflow-hidden border border-gray-300">
+                  <img src={url} alt="uploaded" className="object-cover w-full h-full" />
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(index)}
+                    className="absolute top-0 right-0 bg-black/60 text-white rounded-bl px-1"
+                  >
+                    <TbXboxX size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="text-center">
+            <button
+              type="submit"
+              className="bg-blue-600 cursor-pointer hover:scale-110  hover:-translate-y-2 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-semibold transition"
+            >
+              Submit Campaign
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LendPageCard;
+
